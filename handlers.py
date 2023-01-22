@@ -30,7 +30,7 @@ async def command_create_task(message: types.Message):
 @dp.message_handler(state=NextStateHandler.task_title)
 async def get_task(message: types.Message, state: FSMContext):
     answer = message.text
-    create_task(message.from_id, message.text)
+    create_task(message.from_id, answer)
     await message.answer(f'title of your task -- {answer}')
     await state.finish()
 
@@ -45,11 +45,8 @@ async def command_complete_task(message: types.Message):
 async def get_task(message: types.Message, state: FSMContext):
     answer = message.text
     result = complete_task(answer, message.from_id)
-    if result:
-        await message.answer(f'this task has been done')
-    else:
-        await message.answer(f'Error')
 
+    await message.answer(f'this task has been done') if result else await message.answer(f'Error')
     await state.finish()
 
 
@@ -62,6 +59,7 @@ async def command_remove_task(message: types.Message):
 @dp.message_handler(state=NextStateHandler.task_remove_id)
 async def delete_task(message: types.Message, state: FSMContext):
     remove_task(message.text, message.from_id)
+
     await message.answer(f'your task has been removed')
     await state.finish()
 

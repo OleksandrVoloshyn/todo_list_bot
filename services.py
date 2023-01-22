@@ -29,48 +29,43 @@ async def set_default_commands(dp):
 
 def register_user(user_id, user_name):
     with open_db() as cur:
-        user = list(cur.execute('select * from users where id == %s' % (user_id)))
-        print(user)
+        user = list(cur.execute('SELECT * FROM users WHERE id == (?,)', (user_id,)))
         if not user:
-            cur.execute("insert into users (id, username) values ('%s','%s')" % (user_id, user_name))
+            cur.execute("INSERT INTO users (id, username) VALUES (?, ?)", (user_id, user_name))
 
 
 def create_task(user_id, title):
     with open_db() as cur:
-        print(type(user_id))
-        print(type(title))
-        cur.execute("insert into tasks (title,user_id) values ('%s','%s')" % (title, user_id))
+        cur.execute("INSERT INTO tasks (title, user_id) VALUES (?, ?)", (title, user_id))
 
 
 def get_users_task(user_id):
     with open_db() as cur:
-        cur.execute('select * from tasks where user_id == %s' % (user_id))
+        cur.execute('SELECT * FROM tasks WHERE user_id == (?,)', (user_id,))
         return [f'id:{i[0]} -- task:{i[1]} status:{"Done" if i[2] else "Not Done"}' for i in cur.fetchall()]
 
 
 def complete_task(task_id, user_id):
     with open_db() as cur:
-        task = list(cur.execute('select * from tasks where id == %s' % (task_id)))
-        if task and task[-1][-1] == user_id:
-            cur.execute('update tasks set status=1 where id == %s' % (task_id))
+        task = list(cur.execute('SELECT * FROM tasks WHERE id == (?,)', (task_id,)))
+        if task and task[-1][-1] == user_id:  # task[-1][-1] -> owner_id
+            cur.execute('UPDATE tasks SET status=1 WHERE id == (?,)', (task_id,))
             return True
-
-        return False
 
 
 def remove_task(task_id, user_id):
     with open_db() as cur:
-        task = list(cur.execute('select * from tasks where id = %s' % (task_id)))
-        if task and task[-1][-1] == user_id:
-            cur.execute('delete from tasks where id = %s' % (task_id))
+        task = list(cur.execute('SELECT * FROM tasks WHERE id = (?,)', (task_id,)))
+        if task and task[-1][-1] == user_id:  # task[-1][-1] -> owner_id
+            cur.execute('DELETE FROM tasks WHERE id = (?, )', (task_id,))
 
 
 def update_avatar(user_id, path):
     with open_db() as cur:
-        cur.execute('update users set avatar="%s" where id = %s' % (path, user_id))
+        cur.execute(f'UPDATE users SET avatar="{path}" WHERE id = {user_id}')
 
 
 def get_avatar(user_id):
     with open_db() as cur:
-        cur.execute('select avatar from users where id = %s' % (user_id))
+        cur.execute('SELECT avatar FROM users WHERE id = (?,)', (user_id,))
         return cur.fetchall().pop()

@@ -4,25 +4,21 @@ from services import open_db
 def create_tables():
     with open_db() as cur:
         query_users = """
-                create table if not exists users
-                (
-                    id integer primary key,
-                    username TEXT    not null,
-                    avatar  TEXT
-                )
-        """
+            CREATE TABLE IF NOT EXISTS users(
+            id INTEGER PRIMARY KEY,
+            username TEXT NOT NULL,
+            avatar TEXT 
+            )"""
 
         cur.execute(query_users)
         query_tasks = """
-                    create table if not exists tasks
-                (
-                    id integer primary key,
-                    title   text not null,
-                    status  integer default 0,
-                    user_id integer
-                        constraint user_id
-                            references users
-                            on delete cascade
-                )
-        """
+            CREATE TABLE IF NOT EXISTS tasks(
+            id INTEGER PRIMARY KEY,
+            title TEXT NOT NULL,
+            status INTEGER DEFAULT 0,
+            user_id INTEGER
+            CONSTRAINT user_id
+            REFERENCES users
+            ON DELETE CASCADE
+            )"""
         cur.execute(query_tasks)
